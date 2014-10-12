@@ -79,7 +79,7 @@ revolving shard number. The time-part format is year:2014 day:285 hour:19 minute
 a minute granularity timepart here, but this couldbe days or hours, too - look at the ShardedQueue
 constructor source code).
 
-   ./producer.rb -H ... -K ... -N test
+    ./producer.rb -H ... -K ... -N test
     I, [2014-10-12T...]  INFO -- : Cassandra connection established and got session
     D, [2014-10-12T...] DEBUG -- : Putting message in test|20142851917|2 (due timeuuid: 6a419a9c-5244-11e4-b7f3-1bdb6943b387)
     D, [2014-10-12T...] DEBUG -- : Putting message in test|20142851917|3 (due timeuuid: 6ae3a012-5244-11e4-b7f3-1bdb6943b387)
