@@ -24,7 +24,7 @@ class ShardedQueue
     @due_safety_offset_seconds = 60
 
     # The timepart format determines the granularity of the
-    # rows. The hard_granularity_in_seconds property must
+    # rows. The shard_granularity_in_seconds property must
     # match that granularity because it is used to advance
     # a cinsumer to the next shard when a given shard has
     # been exhausted.
