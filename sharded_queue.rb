@@ -79,8 +79,6 @@ class ShardedQueue
     CREATETABLE
     )
 
-    # Currently unused
-    # @read_ctrl_stmt = @session.prepare("select number_of_shards from ctrl where name = ?")
     @init_shard_stmt = @session.prepare("insert into shards (name,shard,last) values (?,?,now())")
 
     @put_stmt = @session.prepare("insert into work (name,timepart,shard,due,message) values (?,?,?,?,?) using ttl ?")
@@ -127,18 +125,10 @@ class ShardedQueue
   # Try to get the lock for an unlocked shard
   # Returns the akquired shard number or -1 if all shards
   # are already taken.
+  # You can supply an option start shard if you
+  # want take_shard to start trying with a particular
+  # shard.
   def take_shard(consumer_id,ttl,start_with = 0)
-    #Currently unused
-    #number_of_shards = 0
-    #begin
-    #  @session.execute(@read_ctrl_stmt, @name).each do |row|
-    #    number_of_shards = row['number_of_shards']
-    #  end
-    #rescue StandardError => e
-    #  @logger.error("StandardError occurred when reading control row #{e}")
-    #  return false
-    #end
-    #puts number_of_shards
 
     shard=-1
     i=0
@@ -192,7 +182,6 @@ class ShardedQueue
   # or nil to indicate that now() has been reached and processing
   # should pause a while.
   def take_messages(shard,last_due_timeuuid,n)
-    #puts "enter take_messages"
     last_gmt = last_due_timeuuid.to_time
     messages = internal_take_messages(shard,last_gmt,last_due_timeuuid,n)
     if(messages == nil)
@@ -201,28 +190,23 @@ class ShardedQueue
     while messages.length == 0 do
       save_last_gmt = last_gmt
       last_gmt = last_gmt + @shard_granularity_in_seconds
-      #puts "**** No messages for #{save_last_gmt}, trying next minute #{last_gmt}"
       messages = internal_take_messages(shard,last_gmt,last_due_timeuuid,n)
       if(messages == nil)
         return nil
       end
     end
-    #puts "exit take_messages"
     return messages
   end
 
 
   def internal_take_messages(shard,try_gmt,last_due_timeuuid,n)
     timepart = try_gmt.strftime(@timepart_format).to_i
-    #puts "enter internal_take_messages for #{timepart}"
 
     x=Time.now
     gm=x.gmtime
     timepart_now = gm.strftime(@timepart_format).to_i
-    #puts "#{timepart} now:#{timepart_now}"
     if(timepart == timepart_now)
       @logger.debug("Current time reached")
-      #puts "++++++++++++++++++++++++++++++ Reched head ++++++++++++++"
       return nil
     end
 

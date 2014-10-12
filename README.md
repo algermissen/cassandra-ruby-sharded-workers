@@ -8,7 +8,7 @@ that have the following properties:
 - There are one or more producers that can work in parallel
 - The messages put into the queue for processing are independent, the order in which they are processed is insignificant
 - The messages are idempotent, processing them several times does not change the processing result
-- There are no strict timing expectations on the processing beyond that messages should ne processed some (reasonably short) time after being due
+- There are no strict timing expectations on the processing beyond that messages should be processed some (reasonably short) time after being due
 
 # Installation
 
