@@ -27,7 +27,7 @@ Fire up a one or a couple of producers to put some messages into the queue:
 
 # Consume the Messages
 
-For all shards to be processed you need to start at least as many consumers as shards exist.
+For all shards to be processed you should start at least as many consumers as shards exist.
 The number of shards is hard coded in the ShardedQueue constructor:
       
       @number_of_shards = 6
@@ -136,10 +136,15 @@ crashed consumers come up again.
 # Things to Note
 
 The design depends on having at least as many consumers as shards to avoid shards
-that will not be processed. A useful extension would be to implement consumers to
+that will not be processed. -A useful extension would be to implement consumers to
 periodically check for unprocessed shards (for example by looking for a 'last'
 timestamp in the distant past combined with a missing look) and spawn off
-additional processing for such a shard.
+additional processing for such a shard.-
+**Update** This problem has been addressed by having the consumer switch shards
+upon reaching current time for a given shard. The consumers will incrementally
+try the next shard instead of shard '0'. This way, even a single consumer will
+eventually process all shards given its capacity is greater than the message
+arrival frequency.
 
 Special care must be taken that the lock is reliably touched to prevent other
 consumers from accidentally grabbing the lock. A useful addition would be

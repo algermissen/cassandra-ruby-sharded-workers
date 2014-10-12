@@ -127,7 +127,7 @@ class ShardedQueue
   # Try to get the lock for an unlocked shard
   # Returns the akquired shard number or -1 if all shards
   # are already taken.
-  def take_shard(consumer_id,ttl)
+  def take_shard(consumer_id,ttl,start_with = 0)
     #Currently unused
     #number_of_shards = 0
     #begin
@@ -143,10 +143,12 @@ class ShardedQueue
     shard=-1
     i=0
     while i < @number_of_shards  do
-      @logger.debug("Trying to get lock for queue #{@name}, shard #{i}" )
-      @session.execute(@lock_shard_stmt,ttl,consumer_id, @name, i).each do |row|
+      try_shard = i + start_with
+      try_shard = try_shard - @number_of_shards if(try_shard >= @number_of_shards)
+      @logger.debug("Trying to get lock for queue #{@name}, shard #{try_shard}" )
+      @session.execute(@lock_shard_stmt,ttl,consumer_id, @name, try_shard).each do |row|
         if(row['[applied]']) 
-          shard = i
+          shard = try_shard
         end
       end
       break if(shard >= 0)

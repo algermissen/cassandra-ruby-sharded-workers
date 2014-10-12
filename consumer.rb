@@ -4,7 +4,7 @@ require_relative 'sharded_queue'
 
 # Start a thread to periodically touch our shard lock
 def start_lock_touch_thread(logger,queue,worker_id,shard,ttl)
-  Thread.new do
+  t = Thread.new do
     loop do
       sleep(ttl - 5)
       begin
@@ -15,6 +15,7 @@ def start_lock_touch_thread(logger,queue,worker_id,shard,ttl)
       end
     end
   end
+  return t
 end
 
 # Place holder for message 'processing'
@@ -54,15 +55,25 @@ end
 
 logger.info("Working on queue #{name}, shard #{shard} with last_due_processed #{last_due_processed}")
 
-start_lock_touch_thread(logger,queue,worker_id,shard,lock_ttl)
+touch_thread = start_lock_touch_thread(logger,queue,worker_id,shard,lock_ttl)
 
 loop do
   #puts "loop #{shard}"
   messages = queue.take_messages(shard,last_due_processed,number_to_take)
   if(messages == nil)
-    logger.info("No more messages pending until current time, exiting")
+    logger.info("No more messages pending until current time, sleeping")
     queue.set_last_processed_now(shard)
-    exit 0
+    sleep 5
+    touch_thread.exit
+    logger.info("Touch thread has exited")
+    shard,last_due_processed = queue.take_shard(worker_id,lock_ttl,shard+1)
+    if(shard < 0)
+      logger.info("All shards taken")
+      exit 0
+    end
+    logger.info("Working on queue #{name}, shard #{shard} with last_due_processed #{last_due_processed}")
+    touch_thread = start_lock_touch_thread(logger,queue,worker_id,shard,lock_ttl)
+    next
   end
   
   messages.each do |m| 
