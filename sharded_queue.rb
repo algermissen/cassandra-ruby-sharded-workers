@@ -26,7 +26,7 @@ class ShardedQueue
     # The timepart format determines the granularity of the
     # rows. The shard_granularity_in_seconds property must
     # match that granularity because it is used to advance
-    # a cinsumer to the next shard when a given shard has
+    # a consumer to the next row when a given row has
     # been exhausted.
     #
     # Example combinations would be:
