@@ -12,7 +12,7 @@ that have the following properties:
 
 # Installation
 
-Install the Datastax Cassandra driver for Ruby](https://github.com/datastax/ruby-driver). Currently this works best
+Install the Datastax [Cassandra Ruby driver](https://github.com/datastax/ruby-driver). Currently this works best
 by downloading the source from github and installing the gem from these sources directly.
 
 Create a keyspace and initialize the worker shards for a queue.
