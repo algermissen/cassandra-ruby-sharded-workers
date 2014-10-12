@@ -1,9 +1,0 @@
-I, [2014-10-12T22:40:54.080003 #29531]  INFO -- : Starting worker 0f9d8270-5250-11e4-b723-53cbb4561fc6
-I, [2014-10-12T22:40:55.340963 #29531]  INFO -- : Cassandra connection established and got session
-D, [2014-10-12T22:40:56.167164 #29531] DEBUG -- : Trying to get lock for queue test, shard 0
-D, [2014-10-12T22:40:56.228981 #29531] DEBUG -- : Trying to get lock for queue test, shard 1
-D, [2014-10-12T22:40:56.337054 #29531] DEBUG -- : Trying to get lock for queue test, shard 2
-D, [2014-10-12T22:40:56.497177 #29531] DEBUG -- : Trying to get lock for queue test, shard 3
-D, [2014-10-12T22:40:56.560843 #29531] DEBUG -- : Trying to get lock for queue test, shard 4
-D, [2014-10-12T22:40:56.615808 #29531] DEBUG -- : Trying to get lock for queue test, shard 5
-I, [2014-10-12T22:40:56.724141 #29531]  INFO -- : All shards taken

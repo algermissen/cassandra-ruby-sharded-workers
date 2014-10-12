@@ -1,6 +1,0 @@
-I, [2014-10-12T22:40:48.052215 #29314]  INFO -- : Starting worker 0c05be0c-5250-11e4-bd46-43a2c88245b1
-I, [2014-10-12T22:40:49.353226 #29314]  INFO -- : Cassandra connection established and got session
-D, [2014-10-12T22:40:50.295021 #29314] DEBUG -- : Trying to get lock for queue test, shard 0
-I, [2014-10-12T22:40:50.464690 #29314]  INFO -- : Working on queue test, shard 0 with last_due_processed 03eb2180-5250-11e4-b7d6-83a060a4ac30
-D, [2014-10-12T22:40:50.464910 #29314] DEBUG -- : Current time reached
-I, [2014-10-12T22:40:50.464970 #29314]  INFO -- : No more messages pending until current time, exiting
