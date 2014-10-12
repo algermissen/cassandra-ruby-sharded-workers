@@ -182,7 +182,13 @@ class ShardedQueue
 
 
   # Read n messages from the queue that are the next
-  # due after the specified last-timeuuid
+  # due after the specified last-timeuuid. But take only
+  # messages with a due-timeuuid less than the CQL now()
+  # timeuuid.
+  #
+  # Returns an array of due messages (struct of due and message),
+  # or nil to indicate that now() has been reached and processing
+  # should pause a while.
   def take_messages(shard,last_due_timeuuid,n)
     #puts "enter take_messages"
     last_gmt = last_due_timeuuid.to_time

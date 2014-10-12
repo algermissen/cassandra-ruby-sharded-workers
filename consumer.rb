@@ -71,7 +71,7 @@ loop do
   queue.set_last_processed(shard,messages.last.due)
   last_due_processed = messages.last.due
 
-  sleep 0.1
+  sleep 1
 end
 
 

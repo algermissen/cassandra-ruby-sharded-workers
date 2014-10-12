@@ -8,7 +8,7 @@ that have the following properties:
 - There are one or more producers that can work in parallel
 - The messages put into the queue for processing are independent, the order in which they are processed is insignificant
 - The messages are idempotent, processing them several times does not change the processing result
-- There are no strict timing expectations on the processing beyond that messages are processed some (reasonably short) time after being due
+- There are no strict timing expectations on the processing beyond that messages should ne processed some (reasonably short) time after being due
 
 # Installation
 
@@ -36,7 +36,7 @@ You can start six consumers for example like this:
 
     $ for i in {1..6}; do ./consumer.rb --host <ip> --keyspace <keyspace> --name test > ./log_$i 2>&1 & sleep 1; done
 
-The sleep prevents the consumers to overwhelm the shard locks when they start and try to grab each one.
+The sleep prevents the consumers to overwhelm the shard locks when starting up.
 
 # The Details
 
@@ -47,11 +47,12 @@ by avoiding deletes altogether.
 A queue is realized as a collection of rows using a fraction of the due time as
 part of the row key. That way, messages are distributed across rows that become
 historic as time and processing advances. The deletion problem is solved by
-letting these rows expire some (longer) time after they must have been processed
-anyway.
+letting these rows expire some (longer) time beyond the time they must have
+been processed anyway (that is, when noone is interested in the messages anymore
+anyway)
 
 In order to achieve further distribution of messages and thus allow parallel
-processing a modulo-based shard is added to the rwo key. This shard is calculated
+processing a modulo-based shard is added to the row key. This shard is calculated
 based on the clock seconds of the due time:
 
     shard = due_time.sec % number_of_shards
@@ -68,15 +69,15 @@ This is the working table, containing all the shards:
      )
      with clustering order by (due asc)
 
-Note tha compound row key (name,timepart,shard) which indicates the message distribution
+Note the compound row key (name,timepart,shard) which indicates the message distribution
 accross the cluster, preventing hot spots.
 
 ## Message Producers
 
 When you start a producer you can observe this sharding in the produced log messages. For example,
-you see below that messages are inserted in the 'test' queue, time-part '20142851917' and a
+you see below that messages are inserted in the 'test' queue, time-part '20142851917' and you see a
 revolving shard number. The time-part format is year:2014 day:285 hour:19 minute:17. We are using
-a minute granularity timepart here, but this couldbe days or hours, too - look at the ShardedQueue
+a minute granularity timepart here, but this could be days or hours, as well - look at the ShardedQueue
 constructor source code).
 
     ./producer.rb -H ... -K ... -N test
@@ -102,8 +103,8 @@ close to 'now' in case there is an overlap between producing and consuming into/
 
 Consumers process shards in isolation. There is a control table that stores information about the
 shards, among other things a per-shard lock. Upon startup, consumers try to akquire the lock
-of any shard and will stick to that shard until they explicitly release the lock or
-crash.
+of a shard (Using C* 2.x conditional updates) and will stick to that shard until they explicitly
+release the lock or crash.
 
     create table if not exists shards (
       name text,
@@ -117,19 +118,19 @@ crash.
     with clustering order by (shard asc)
 
 In order to prevent 'dangling' locks when a consumer crashes, locks are written with a TTL and
-consumers are required periodically touch the lock while they are operating.
+consumers are required to periodically touch the lock while they are operating.
 
 The isolation reduces lock contention that might frequently occur when concurrent
 consumers would try to akquire a shared lock every time they fetch some messages.
 
-The 'last' column stores for every shard the time-UUID that has last been processed
-and indicates the point in time at which a consumer must pick up work
+The 'last' column stores for every shard the time-UUID that has last been processed.
+This indicates the point in time at which a consumer must pick up work
 when it continues to process the queue.
 
 Consumers will process a shard from the 'last' timestamp up to the current time.
 
-After having processed a bunch of messages consumer should update the 'last'
-timestamp to narrow the window of re-processing messages when accidentally
+After having processed a bunch of messages a consumer should update the 'last'
+timestamp to narrow the window of re-processing messages when an accidentally
 crashed consumers come up again.
 
 # Things to Note
@@ -137,7 +138,7 @@ crashed consumers come up again.
 The design depends on having at least as many consumers as shards to avoid shards
 that will not be processed. A useful extension would be to implement consumers to
 periodically check for unprocessed shards (for example by looking for a 'last'
-timestamp in the distant past combined with a missing look) and spawn of
+timestamp in the distant past combined with a missing look) and spawn off
 additional processing for such a shard.
 
 Special care must be taken that the lock is reliably touched to prevent other
