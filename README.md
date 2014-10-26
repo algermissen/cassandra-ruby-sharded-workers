@@ -10,6 +10,15 @@ that have the following properties:
 - The messages are idempotent, processing them several times does not change the processing result
 - There are no strict timing expectations on the processing beyond that messages should be processed some (reasonably short) time after being due
 
+# WARNING
+
+----
+I have recently discovered that there is a tiny change for messages that are not processed if their due date
+correlates very closely with a worker doing the last check before 'now' on a shard. The fix is easy, please
+open an issue or send an email directly if you plan to use this in production before I find the time to fix
+the problem.
+----
+
 # Installation
 
 Install the Datastax [Cassandra Ruby driver](https://github.com/datastax/ruby-driver). Currently this works best
