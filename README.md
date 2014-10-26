@@ -17,6 +17,7 @@ I have recently discovered that there is a tiny change for messages that are not
 correlates very closely with a worker doing the last check before 'now' on a shard. The fix is easy, please
 open an issue or send an email directly if you plan to use this in production before I find the time to fix
 the problem.
+
 ----
 
 # Installation
